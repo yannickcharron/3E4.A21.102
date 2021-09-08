@@ -1,7 +1,15 @@
 import express from 'express';
 import dayjs from 'dayjs';
 
+import methodMiddleware from './middlewares/method.js';
+import errorMiddleware from './middlewares/errors.js';
+
+import planetsRoutes from './routes/planets.routes.js';
+
 const app = express();
+
+app.use(methodMiddleware);
+app.use(planetsRoutes);
 
 app.get('/premiere', (req, res) => {
     res.status(200);
@@ -9,11 +17,6 @@ app.get('/premiere', (req, res) => {
     res.send('Notre première route avec express');
 });
 
-//maths/produit
-//maths/difference
-//maths/quotient
-//maths/reste
-//maths/somme
 app.get('/maths/:operation', (req, res) => {
 
     const operation = req.params.operation;
@@ -58,5 +61,7 @@ app.get('/date', (req, res) => {
     const now = dayjs().format('YYYY-MM-DD HH:mm');
     res.send(now);    
 });
+
+app.use(errorMiddleware);
 
 export default app;

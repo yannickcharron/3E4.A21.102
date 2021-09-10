@@ -8,13 +8,47 @@ const router = express.Router();
 
 class PlanetsRoutes {
     constructor() {
-        router.get('/planets', this.getAll);
-        router.get('/planets/:idPlanet', this.getOne);
-        router.post('/planets', this.post);
+        router.get('/', this.getAll);
+        router.get('/:idPlanet', this.getOne);
+        router.post('/', this.post);
+        router.delete('/:idPlanet', this.delete);
+        router.patch('/:idPlanet', this.patch);
+        router.put('/:idPlanet', this.put);
+    }
+
+    patch(req, res, next) {
+        return next(HttpError.NotImplemented());
+    }
+
+    put(req, res, next) {
+        return next(HttpError.MethodNotAllowed());
+    }
+
+    delete(req, res, next) {
+
+        const index = PLANETS.findIndex(p => p.id == req.params.idPlanet);
+
+        if(index === -1) {
+            return next(HttpError.NotFound(`La planète avec l'identifiant ${req.params.idPlanet} n'existe pas`))
+        }
+
+        PLANETS.splice(index, 1);
+        res.status(204).end();
+
     }
 
     post(req, res, next) {
-        
+        const newPlanet = req.body;
+        const planet = PLANETS.find(p => p.id == newPlanet.id);
+
+        if(planet) {
+            //Doublon detected !!!!
+            return next(HttpError.Conflict(`La planète avec l'identifiant ${newPlanet.id} existe déjà`));
+        } else {
+            PLANETS.push(newPlanet);
+            res.status(201).json(newPlanet);
+        }
+
     }
 
     getAll(req, res, next) {

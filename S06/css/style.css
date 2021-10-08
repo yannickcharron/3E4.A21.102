@@ -11,3 +11,13 @@
     font-size: 1.5em;
     margin:10px 0;
 }
+
+a:link, a:visited {
+    color:black;
+    font-weight: bolder;
+}
+
+#imgIcon {
+    width: 75%;
+    height: auto;
+}

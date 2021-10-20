@@ -21,3 +21,7 @@ a:link, a:visited {
     width: 75%;
     height: auto;
 }
+
+.imgElement {
+    width: 20%;
+}

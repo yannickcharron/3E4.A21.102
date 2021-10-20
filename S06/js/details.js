@@ -1,3 +1,4 @@
+const ELEMENT_IMG_URL = 'https://assets.andromia.science/elements'
 const urlParams = {};
 (window.onpopstate = function () {
     let match;
@@ -18,18 +19,62 @@ $(document).ready(() => {
         addPortal();
     });
 
+    $('#btnExtraction').click(() => {
+        extractPlanet();
+    });
+
 });
 
-function addPortal() {
+async function extractPlanet() {
+
+    //GET
+    const MINING_URL = `${urlParams.href}/actions?type=mine`;
+
+    const response = await axios.get(MINING_URL);
+    if(response.status === 200) {
+        const elements = response.data;
+
+        $('#extraction tbody').empty();
+
+        elements.forEach(e => {
+            let elementHtml = '<tr>';
+            elementHtml += `<td><img class="imgElement" src="${ELEMENT_IMG_URL}/${e.element}.png" /> ${e.element}</td>`;
+            elementHtml += `<td>${e.quantity}</td>`;
+            elementHtml += '</tr>';
+
+            $('#extraction tbody').append(elementHtml);
+        });
+        
+
+    } else {
+        console.log(reponse);
+    }
+}
+
+async function addPortal() {
     const position = $('#txtPosition').val();
     const affinity = $('#cboAffinity').val();
-
-    const color = $('#clpTest').val();
-
-    console.log(position);
-    console.log(affinity);
     
-    console.log(color);
+    const isPositionValid = document.getElementById('txtPosition').checkValidity();
+
+    if(isPositionValid) {
+        const ADD_PORTAL_URL = `${urlParams.href}/portals`;
+        const body = {
+            position:position,
+            affinity:affinity
+        };
+    
+        const response = await axios.post(ADD_PORTAL_URL, body);
+        if(response.status === 201) {
+            const portals = [response.data];
+            displayPortals(portals);
+    
+        } else {
+            console.log(response);
+        }
+    } else {
+        console.log('Portal dans un format invalide');
+    }
 
 }
 

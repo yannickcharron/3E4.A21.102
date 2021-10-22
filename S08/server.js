@@ -19,8 +19,24 @@ httpServer.listen(PORT, () => {
     console.log(`Server listening on *:${PORT}`);
 });
 
+//Connexion des clients
 
-//TODO: Connexion des clients
+socketServer.on(IOEVENTS.CONNECTION, socket => {
+    console.log(socket.id);
+
+    socket.on(IOEVENTS.SEND_MESSAGE, message => {
+        console.log(message);
+        const messageToBroadcast = {
+            text:message.text,
+            timestamp:dayjs().toISOString(),
+            socketId: socket.id
+        };
+        socketServer.emit(IOEVENTS.NEW_MESSAGE, messageToBroadcast);
+
+    });
+
+
+});
 
 
 async function newUser(socket) {

@@ -24,15 +24,29 @@ httpServer.listen(PORT, () => {
 socketServer.on(IOEVENTS.CONNECTION, socket => {
     console.log(socket.id);
 
+    newUser(socket);
+
     socket.on(IOEVENTS.SEND_MESSAGE, message => {
         console.log(message);
         const messageToBroadcast = {
             text:message.text,
             timestamp:dayjs().toISOString(),
-            socketId: socket.id
+            socketId: socket.id,
+            avatar: socket.data.identity.avatar,
+            name: socket.data.identity.name
         };
         socketServer.emit(IOEVENTS.NEW_MESSAGE, messageToBroadcast);
 
+    });
+
+    socket.on(IOEVENTS.CHANGE_NAME, identity => {
+        socket.data.identity.name = identity.name;
+        sendUserIdentities();
+    });
+
+    socket.on(IOEVENTS.DISCONNECT, reason => {
+        console.log(reason);
+        sendUserIdentities();
     });
 
 
@@ -41,10 +55,23 @@ socketServer.on(IOEVENTS.CONNECTION, socket => {
 
 async function newUser(socket) {
 
+    const newUser = {
+        id: socket.id,
+        avatar: randomAvatarImage(),
+        name: 'Anonyme' 
+    }
+
+    socket.data.identity = newUser;
+    await sendUserIdentities();
 }
 
 
 async function sendUserIdentities() {
+
+    const clients = await socketServer.fetchSockets();
+    const users = clients.map(c => c.data.identity);
+
+    socketServer.emit(IOEVENTS.LIST_USERS, users);
     
 }
 

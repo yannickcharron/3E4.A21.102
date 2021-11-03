@@ -1,5 +1,6 @@
 import express from 'express';
 import HttpError from 'http-errors';
+import paginate from 'express-paginate';
 
 import explorationsRepository from '../repositories/explorations.repository.js';
 
@@ -8,11 +9,51 @@ const router = express.Router();
 class ExplorationsRoutes {
     
     constructor() {
-        router.get('/', this.getAll);
+        router.get('/', paginate.middleware(20, 50), this.getAll);
         router.get('/:explorationId', this.getOne);
     }
 
-    getAll(req, res, next) {
+    async getAll(req, res, next) {
+
+        const retrieveOptions = {
+            skip:req.skip,
+            limit:req.query.limit
+        };
+
+        try {
+            
+            let [explorations, documentsCount] = await explorationsRepository.retrieveAll(retrieveOptions);
+            
+
+            explorations = explorations.map(e => {
+                e = e.toObject({getters:false, virtuals:false});
+                e = explorationsRepository.transform(e);
+                return e;
+            });
+
+            const pageCount = Math.ceil(documentsCount/req.query.limit);
+            const hasNextPage = (paginate.hasNextPages(req))(pageCount);
+
+            const response = {
+                _metadata: {
+                    hasNextPage: hasNextPage,
+                    page: req.query.page,
+                    limit: req.query.limit,
+                    skip: req.skip,
+                    totalPages: pageCount,
+                    totalDocuments: documentsCount
+                },
+                _links:{
+                    
+                },
+                data:explorations
+            };
+
+            res.status(200).json(response);
+
+        } catch (err) {
+            return next(err);
+        }
 
     }
 

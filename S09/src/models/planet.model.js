@@ -16,4 +16,12 @@ const planetSchema = mongoose.Schema({
   strict:'throw'
 });
 
+planetSchema.virtual('explorations', {
+  ref:'Exploration',
+  foreignField:'planet',
+  localField:'_id',
+  justOne:false
+});
+
+
 export default mongoose.model('Planet', planetSchema);

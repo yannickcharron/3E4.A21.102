@@ -35,6 +35,7 @@ class ExplorationsRepository {
         
         exploration.href = `/explorations/${exploration._id}`;
         delete exploration._id;
+        
 
         return exploration;
     }

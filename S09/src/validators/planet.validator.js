@@ -30,7 +30,6 @@ class PlanetValidators {
             body('position.x').exists().withMessage('La position en x est requise'),
             body('position.y').exists().withMessage('La position en y est requise'),
             body('position.z').exists().withMessage('La position en z est requise'),
-            body('ffd').isIn
             ... this.partial(),
         ]
     }
